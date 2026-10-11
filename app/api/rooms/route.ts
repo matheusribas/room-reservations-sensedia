@@ -68,7 +68,19 @@ export async function POST(request: NextRequest) {
       },
     })
     return NextResponse.json(room, { status: 201 })
-  } catch {
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2025"
+    ) {
+      return NextResponse.json(
+        { error: "Recurso não encontrado." },
+        { status: 404 }
+      )
+    }
+
     return NextResponse.json(
       { error: "Não foi possível criar a sala." },
       { status: 500 }
