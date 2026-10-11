@@ -39,7 +39,7 @@ export function ComboboxResources({
           {(values) => (
             <>
               {values.map((id: string) => (
-                <ComboboxChip key={id}>
+                <ComboboxChip key={id} className="capitalize">
                   {resources.find((resource) => resource.id === id)?.name ?? id}
                 </ComboboxChip>
               ))}
@@ -52,7 +52,7 @@ export function ComboboxResources({
         <ComboboxEmpty>Não encontrado</ComboboxEmpty>
         <ComboboxList>
           {(id) => (
-            <ComboboxItem key={id} value={id}>
+            <ComboboxItem key={id} value={id} className="capitalize">
               {resources.find((resource) => resource.id === id)?.name ?? id}
             </ComboboxItem>
           )}

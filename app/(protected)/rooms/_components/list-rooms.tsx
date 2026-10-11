@@ -39,14 +39,9 @@ function RoomResults({
   }
 
   return (
-    <div className="grid grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
       {rooms.map((room) => (
-        <ItemRoom
-          key={room.id}
-          name={room.name}
-          capacity={room.capacity}
-          resources={room.resources}
-        />
+        <ItemRoom key={room.id} {...room} />
       ))}
     </div>
   )
@@ -59,10 +54,10 @@ export function ListRooms() {
     data: rooms = [],
     isPending: isLoading,
     isError,
-  } = useListRooms(capacity, resourceIds)
+  } = useListRooms({ capacity, resourceIds })
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex justify-end gap-4">
         <InputDebounce
           value={capacity}
