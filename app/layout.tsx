@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
 import "./globals.css"
+import { QueryProvider } from "@/components/query-provider"
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -30,9 +31,11 @@ export default function RootLayout({
       )}
     >
       <body className="flex min-h-full flex-col">
-        <ThemeProvider>
-          <TooltipProvider>{children}</TooltipProvider>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   )
