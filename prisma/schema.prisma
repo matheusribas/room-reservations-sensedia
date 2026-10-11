@@ -29,7 +29,8 @@ model Room {
 }
 
 model Resource {
-  id    String @id @default(cuid())
-  name  String @unique
-  rooms Room[]
+  id        String   @id @default(cuid())
+  name      String   @unique
+  rooms     Room[]
+  createdAt DateTime @default(now())
 }
