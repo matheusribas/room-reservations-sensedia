@@ -20,10 +20,16 @@ model User {
 }
 
 model Room {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
   capacity  Int
-  resources String   @default("[]")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  resources Resource[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Resource {
+  id    String @id @default(cuid())
+  name  String @unique
+  rooms Room[]
 }
