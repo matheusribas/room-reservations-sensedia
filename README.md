@@ -41,7 +41,7 @@ Os endpoints de criação, edição e exclusão são uma base de backend; isso n
 | SALA-4: administração de salas protegida por papel/permissão no servidor | Parcial: há endpoints de sala, mas faltam autenticação, autorização e fluxo administrativo completo |
 | SALA-5: restringir reservas a dias úteis, entre 08h e 20h | Pendente |
 | SALA-6: duração máxima de reserva configurável por sala | Pendente |
-| Seed com cinco salas, dois usuários comuns e um administrador | Pendente |
+| Seed com cinco salas, dois usuários comuns e um administrador | Implementado |
 | Testes automatizados dos requisitos pedidos | Pendente |
 | CI e processo completo de branches, PRs e releases | Pendente |
 
@@ -52,8 +52,11 @@ As páginas de login, usuários e reservas ainda são placeholders. A tela de lo
 Requisitos: Node.js compatível com o projeto e pnpm.
 
 1. Instale as dependências com `pnpm install`.
-2. Configure `DATABASE_URL` no `.env`, por exemplo `DATABASE_URL="file:./dev.db"`.
-3. Com o banco local disponível, inicie o Next.js com `pnpm run dev`.
+2. Crie um arquivo `.env` na raiz do projeto e configure `DATABASE_URL="file:./dev.db"`.
+3. Aplique as migrations e crie o banco local com `pnpm exec prisma migrate dev`.
+4. Gere o Prisma Client com `pnpm exec prisma generate`.
+5. Popule o banco com os dados iniciais usando `pnpm exec prisma db seed`.
+6. Inicie a aplicação com `pnpm run dev`.
 
 Também estão configurados `pnpm run lint` e `pnpm run typecheck`. Ainda não há script de testes no `package.json`.
 
@@ -76,7 +79,8 @@ flowchart LR
 
 ## Próximos passos
 
-1. Criar seed e testes exigidos pelo desafio.
-2. Implementar reservas e suas validações no servidor.
-3. Implementar identificação de usuário e autorização administrativa no servidor.
-4. Implementar SALA-5 e SALA-6, CI e o fluxo de releases solicitado.
+
+1. Implementar reservas e suas validações no servidor.
+2. Implementar identificação de usuário e autorização administrativa no servidor.
+3. Implementar SALA-5 e SALA-6, CI e o fluxo de releases solicitado.
+4. Criar testes automatizados para os requisitos do desafio.
