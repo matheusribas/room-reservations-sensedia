@@ -21,9 +21,6 @@ export async function GET(request: NextRequest) {
       { status: 401 }
     )
   }
-  if (user.role !== "admin") {
-    return NextResponse.json({ error: MESSAGE_UNAUTHORIZED }, { status: 403 })
-  }
 
   const searchParams = request.nextUrl.searchParams
   const searchParamsCapacity = searchParams.get("capacity")

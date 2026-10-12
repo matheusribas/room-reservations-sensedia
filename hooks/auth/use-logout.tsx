@@ -21,5 +21,9 @@ export const useLogout = () => {
 
       return result
     },
+    async onSuccess(_data, _variables, _onMutateResult, { client }) {
+      await client.cancelQueries()
+      client.removeQueries()
+    },
   })
 }
