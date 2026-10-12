@@ -43,12 +43,11 @@ model Reservation {
   userId    String
   startAt   DateTime
   endAt     DateTime
-  status    String   @default("ACTIVE")
   createdAt DateTime @default(now())
 
   room Room @relation(fields: [roomId], references: [id])
   user User @relation(fields: [userId], references: [id])
 
   @@index([roomId, startAt, endAt])
-  @@index([userId, status])
+  @@index([userId])
 }
