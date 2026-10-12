@@ -5,7 +5,7 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { useListRooms } from "@/hooks/rooms/use-list-rooms"
-import { SaveIcon, SquareArrowOutUpRightIcon } from "lucide-react"
+import { SaveIcon, DoorClosedIcon } from "lucide-react"
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -86,7 +86,7 @@ export function Wrapper() {
       <div className="flex w-full flex-1 flex-col items-center justify-center gap-4">
         <p role="alert">Nenhuma sala está cadastrada.</p>
         <Link href={`/rooms`} className={buttonVariants()}>
-          <SquareArrowOutUpRightIcon /> Voltar para salas
+          <DoorClosedIcon /> Voltar para salas
         </Link>
       </div>
     )

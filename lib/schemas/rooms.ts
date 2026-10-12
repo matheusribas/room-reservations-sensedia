@@ -63,3 +63,4 @@ export const roomFormFieldsSchema = z.object({
 })
 
 export type RoomFormValues = z.input<typeof roomFormFieldsSchema>
+export type UpdateRoomValues = z.input<typeof updateRoomSchema> & { id: string }
