@@ -2,6 +2,9 @@ import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth"
 import { ListRooms } from "./_components/list-rooms"
+import Link from "next/link"
+import { buttonVariants } from "@/components/ui/button"
+import { DoorClosedIcon } from "lucide-react"
 
 export default async function RoomPage() {
   const user = await getCurrentUser()
@@ -19,6 +22,9 @@ export default async function RoomPage() {
             Aqui você pode visualizar e reservar uma sala.
           </p>
         </div>
+        <Link href="/rooms/create" className={buttonVariants({ size: "lg" })}>
+          <DoorClosedIcon /> Criar sala
+        </Link>
       </div>
 
       <Suspense
