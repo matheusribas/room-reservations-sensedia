@@ -33,9 +33,12 @@ export const useReservationAvailability = ({
         startAt: startAt.toISOString(),
         endAt: endAt.toISOString(),
       })
-      const response = await fetch(`/api/reservations?${searchParams}`, {
-        signal,
-      })
+      const response = await fetch(
+        `/api/reservations/availability?${searchParams}`,
+        {
+          signal,
+        }
+      )
 
       let result: AvailableInterval[] | { error?: string }
       try {

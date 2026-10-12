@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-const reservationDateTimeSchema = z.iso.datetime({ offset: true })
+export const reservationDateTimeSchema = z.iso.datetime({ offset: true })
 
 function validateReservationWindow(
   startAt: Date,
@@ -22,7 +22,7 @@ function validateReservationWindow(
     context.addIssue({
       code: "custom",
       path: [endPath],
-      message: "A duração deve ser entre 15 minutos e 4 horas.",
+      message: "A duração deve ser entre 15 minutos à 4 horas.",
     })
   }
 }

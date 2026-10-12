@@ -1,5 +1,6 @@
 import { CreateReservationInput } from "@/lib/schemas/reservations"
 import { useMutation } from "@tanstack/react-query"
+import { format } from "date-fns"
 
 export const useCreateReservation = () => {
   return useMutation({
@@ -23,6 +24,15 @@ export const useCreateReservation = () => {
       }
 
       return result
+    },
+    onSuccess(data, variables, onMutateResult, context) {
+      const date = format(new Date(variables.startAt), "yyyy-MM-dd")
+      context.client.invalidateQueries({
+        queryKey: ["reservation-availability", variables.roomId, date],
+      })
+      context.client.invalidateQueries({
+        queryKey: ["reservation", date],
+      })
     },
   })
 }

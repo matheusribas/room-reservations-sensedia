@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { useListRooms } from "@/hooks/rooms/use-list-rooms"
 import { SaveIcon, SquareArrowOutUpRightIcon } from "lucide-react"
@@ -45,19 +45,18 @@ import { useCreateReservation } from "@/hooks/reservation/use-create-reservation
 import { useEffect } from "react"
 import { toast } from "@/components/ui/toast"
 import { AvailabilityHour } from "./availability-hour"
-import { useQueryClient } from "@tanstack/react-query"
 
 function localDateString(date: Date) {
   return format(date, "yyyy-MM-dd")
 }
 
 export function Wrapper() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const roomId = searchParams.get("roomId") || ""
   const { data: rooms } = useListRooms({ capacity: "", resourceIds: [] })
   const mutateCreateReservation = useCreateReservation()
   const isSuccess = mutateCreateReservation.isSuccess
-  const queryClient = useQueryClient()
 
   const form = useForm<ReservationFormValues, unknown, CreateReservationInput>({
     resolver: zodResolver(reservationFormSchema),
@@ -76,9 +75,7 @@ export function Wrapper() {
     form.clearErrors("root.server")
     try {
       await mutateCreateReservation.mutateAsync(values)
-      queryClient.invalidateQueries({
-        queryKey: ["reservation-availability", roomId, form.getValues("date")],
-      })
+      router.push("/")
     } catch (error) {
       form.setError("root.server", {
         type: "server",
@@ -131,15 +128,14 @@ export function Wrapper() {
         </div>
 
         <div className="flex gap-4">
-          <Link
-            href={`/rooms`}
-            className={buttonVariants({
-              variant: "outline",
-              size: "lg",
-            })}
+          <Button
+            variant="outline"
+            size="lg"
+            disabled={form.formState.isSubmitting}
+            onClick={router.back}
           >
             Cancelar
-          </Link>
+          </Button>
           <Button
             size="lg"
             type="submit"
@@ -204,7 +200,11 @@ export function Wrapper() {
                           >
                             <SelectValue
                               placeholder="Selecione uma sala"
-                              render={<span>{selectedRoom?.name || ""}</span>}
+                              render={
+                                <span>
+                                  {selectedRoom?.name || "Selecione uma sala"}
+                                </span>
+                              }
                             />
                           </SelectTrigger>
                           <SelectContent>
