@@ -1,3 +1,4 @@
+import { getCurrentUser, MESSAGE_UNAUTHENTICATED } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -5,13 +6,22 @@ export async function DELETE(
   _: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    return NextResponse.json(
+      { error: MESSAGE_UNAUTHENTICATED },
+      { status: 401 }
+    )
+  }
+
   const id = (await params).id
 
   if (!id) {
     return NextResponse.json({ error: "Id não informado." }, { status: 400 })
   }
   const reservation = await prisma.reservation.findUnique({
-    where: { id },
+    where: { id, userId: user.id },
     select: { id: true, startAt: true, endAt: true },
   })
 

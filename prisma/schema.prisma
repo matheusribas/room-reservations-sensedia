@@ -18,6 +18,7 @@ model User {
   role         String        @default("user")
   createdAt    DateTime      @default(now())
   reservations Reservation[]
+  sessions     Session[]
 }
 
 model Room {
@@ -50,4 +51,17 @@ model Reservation {
 
   @@index([roomId, startAt, endAt])
   @@index([userId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }

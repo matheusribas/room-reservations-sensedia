@@ -3,6 +3,7 @@ import { invalidRequest } from "@/lib/invalid-request"
 import { prisma } from "@/lib/prisma"
 import { createReservationSchema } from "@/lib/schemas/reservations"
 import z from "zod"
+import { getCurrentUser, MESSAGE_UNAUTHENTICATED } from "@/lib/auth"
 
 class ReservationRequestError extends Error {
   constructor(
@@ -13,6 +14,15 @@ class ReservationRequestError extends Error {
   }
 }
 export async function GET(request: NextRequest) {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    return NextResponse.json(
+      { error: MESSAGE_UNAUTHENTICATED },
+      { status: 401 }
+    )
+  }
+
   const searchParams = request.nextUrl.searchParams
   const searchParamsDate = searchParams.get("date")
 
@@ -35,6 +45,7 @@ export async function GET(request: NextRequest) {
       where: {
         startAt: { lt: startOfNextDay },
         endAt: { gt: startOfDay },
+        userId: user.id,
       },
       include: {
         room: {
@@ -55,6 +66,15 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    return NextResponse.json(
+      { error: MESSAGE_UNAUTHENTICATED },
+      { status: 401 }
+    )
+  }
+
   let body: unknown
   try {
     body = await request.json()
@@ -65,28 +85,20 @@ export async function POST(request: NextRequest) {
   const result = createReservationSchema.safeParse(body)
   if (!result.success) return invalidRequest(result.error)
 
-  const { roomId, userId, startAt, endAt } = result.data
+  const { roomId, startAt, endAt } = result.data
   const startTime = new Date(startAt)
   const endTime = new Date(endAt)
 
   try {
     const reservation = await prisma.$transaction(
       async (transaction) => {
-        const [room, user] = await Promise.all([
-          transaction.room.findUnique({
-            where: { id: roomId },
-            select: { id: true },
-          }),
-          transaction.user.findUnique({
-            where: { id: userId },
-            select: { id: true },
-          }),
-        ])
+        const room = await transaction.room.findUnique({
+          where: { id: roomId },
+          select: { id: true },
+        })
 
         if (!room) {
           throw new ReservationRequestError("Sala não encontrada.", 404)
-        } else if (!user) {
-          throw new ReservationRequestError("Usuário não encontrado.", 404)
         }
 
         const overlappingReservation = await transaction.reservation.findFirst({
@@ -106,7 +118,7 @@ export async function POST(request: NextRequest) {
         }
 
         return transaction.reservation.create({
-          data: { roomId, userId, startAt: startTime, endAt: endTime },
+          data: { roomId, userId: user.id, startAt: startTime, endAt: endTime },
         })
       },
       { isolationLevel: "Serializable" }

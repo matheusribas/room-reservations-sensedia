@@ -2,8 +2,18 @@ import { NextRequest, NextResponse } from "next/server"
 import { invalidRequest } from "@/lib/invalid-request"
 import { prisma } from "@/lib/prisma"
 import { reservationAvailabilityQuerySchema } from "@/lib/schemas/reservations"
+import { getCurrentUser, MESSAGE_UNAUTHENTICATED } from "@/lib/auth"
 
 export async function GET(request: NextRequest) {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    return NextResponse.json(
+      { error: MESSAGE_UNAUTHENTICATED },
+      { status: 401 }
+    )
+  }
+
   const searchParams = request.nextUrl.searchParams
   const result = reservationAvailabilityQuerySchema.safeParse({
     roomId: searchParams.get("roomId"),
