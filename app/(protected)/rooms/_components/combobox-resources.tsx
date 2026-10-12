@@ -31,6 +31,9 @@ export function ComboboxResources({
       multiple
       autoHighlight
       items={resources.map(({ id }) => id)}
+      itemToStringLabel={(id) =>
+        resources.find((resource) => resource.id === id)?.name ?? id
+      }
       value={selectedResourceIds}
       onValueChange={onValueChange}
     >

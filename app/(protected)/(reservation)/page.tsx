@@ -1,7 +1,7 @@
 import { buttonVariants } from "@/components/ui/button"
 import { TableReservations } from "./_components/table-reservation"
 import Link from "next/link"
-import { SquareArrowOutUpRightIcon } from "lucide-react"
+import { CalendarDaysIcon } from "lucide-react"
 
 export default function ReservationPage() {
   return (
@@ -14,10 +14,10 @@ export default function ReservationPage() {
           </p>
         </div>
         <Link
-          href="/create-reservation"
+          href="/reservation/create"
           className={buttonVariants({ size: "lg" })}
         >
-          Criar reserva <SquareArrowOutUpRightIcon />
+          <CalendarDaysIcon /> Criar reserva
         </Link>
       </div>
 

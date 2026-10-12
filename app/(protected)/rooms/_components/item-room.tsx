@@ -49,12 +49,12 @@ export function ItemRoom(props: ItemRoomProps) {
       </CardHeader>
       <CardFooter>
         <Link
-          href={`/create-reservation?roomId=${id}`}
+          href={`/reservation/create?roomId=${id}`}
           className={buttonVariants({
             className: "w-full",
           })}
         >
-          Reservar sala <SquareArrowOutUpRightIcon />
+          <SquareArrowOutUpRightIcon /> Reservar sala
         </Link>
       </CardFooter>
     </Card>

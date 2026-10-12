@@ -86,7 +86,7 @@ export function Wrapper() {
       <div className="flex w-full flex-1 flex-col items-center justify-center gap-4">
         <p role="alert">Nenhuma sala está cadastrada.</p>
         <Link href={`/rooms`} className={buttonVariants()}>
-          Voltar para salas <SquareArrowOutUpRightIcon />
+          <SquareArrowOutUpRightIcon /> Voltar para salas
         </Link>
       </div>
     )
