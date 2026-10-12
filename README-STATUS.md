@@ -38,7 +38,7 @@ Quando uma nova sala for concluída:
 - SALA-1 consulta salas pela API, filtra capacidade mínima e todos os recursos escolhidos, e mantém os filtros na URL.
 - Listagem usa TanStack Query e possui estados de carregamento, erro e vazio, além de cards e skeletons.
 - Prisma modela `User`, `Room` e `Resource`, com relação muitos-para-muitos entre salas e recursos.
-- API de salas tem GET/POST e operações PATCH/DELETE por id.
+- API de salas tem GET/POST e operações PUT/DELETE por id.
 - API de recursos tem GET/POST e DELETE por id.
 - Schemas Zod validam entradas.
 - Páginas de login, usuários e reservas estão registradas como placeholders. O login não autentica nem permite selecionar usuário.

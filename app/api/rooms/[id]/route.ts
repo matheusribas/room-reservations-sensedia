@@ -8,7 +8,7 @@ import {
   MESSAGE_UNAUTHORIZED,
 } from "@/lib/auth"
 
-export async function PATCH(
+export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -42,11 +42,26 @@ export async function PATCH(
   const name = result.data?.name
   const capacity = result.data?.capacity
   const resourcesIds = result.data?.resourcesIds
+  const newResources = result.data?.newResources
   const data = {
     ...(name !== undefined ? { name } : {}),
     ...(capacity !== undefined ? { capacity } : {}),
-    ...(resourcesIds !== undefined
-      ? { resources: { set: resourcesIds.map((id) => ({ id })) } }
+    ...(resourcesIds !== undefined || newResources?.length
+      ? {
+          resources: {
+            ...(resourcesIds !== undefined
+              ? { set: resourcesIds.map((id) => ({ id })) }
+              : {}),
+            ...(newResources?.length
+              ? {
+                  connectOrCreate: newResources.map((resourceName) => ({
+                    where: { name: resourceName },
+                    create: { name: resourceName },
+                  })),
+                }
+              : {}),
+          },
+        }
       : {}),
   }
 
