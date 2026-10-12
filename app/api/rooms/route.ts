@@ -85,14 +85,28 @@ export async function POST(request: NextRequest) {
   const result = createRoomSchema.safeParse(body)
   if (!result.success) return invalidRequest(result.error)
 
-  const { name, capacity, resourcesIds } = result.data
+  const { name, capacity, resourcesIds, newResources } = result.data
   try {
     const room = await prisma.room.create({
       data: {
         name,
         capacity,
-        ...(resourcesIds !== undefined
-          ? { resources: { connect: resourcesIds.map((id) => ({ id })) } }
+        ...(resourcesIds !== undefined || newResources?.length
+          ? {
+              resources: {
+                ...(resourcesIds !== undefined
+                  ? { connect: resourcesIds.map((id) => ({ id })) }
+                  : {}),
+                ...(newResources?.length
+                  ? {
+                      connectOrCreate: newResources.map((resourceName) => ({
+                        where: { name: resourceName },
+                        create: { name: resourceName },
+                      })),
+                    }
+                  : {}),
+              },
+            }
           : {}),
       },
     })
