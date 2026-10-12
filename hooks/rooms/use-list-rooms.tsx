@@ -1,18 +1,19 @@
 import { Room } from "@/lib/types"
 import { useQuery } from "@tanstack/react-query"
 
-export const useListRooms = (
-  capacity: string,
-  selectedResourceIds: string[]
-) => {
+interface UseListRoomsParams {
+  capacity: string
+  resourceIds: string[]
+}
+export const useListRooms = ({ capacity, resourceIds }: UseListRoomsParams) => {
   return useQuery({
-    queryKey: ["rooms", capacity, selectedResourceIds],
+    queryKey: ["rooms", capacity, resourceIds],
     queryFn: async ({ signal }) => {
       const searchParams = new URLSearchParams()
 
       if (capacity) searchParams.set("capacity", capacity)
-      if (selectedResourceIds.length > 0) {
-        searchParams.set("resourcesIds", JSON.stringify(selectedResourceIds))
+      if (resourceIds.length > 0) {
+        searchParams.set("resourcesIds", JSON.stringify(resourceIds))
       }
 
       const response = await fetch(`/api/rooms?${searchParams}`, { signal })

@@ -2,6 +2,7 @@ import { Footer } from "@/components/feature/layout/footer"
 import { Header } from "@/components/feature/layout/header"
 import { Sidebar } from "@/components/feature/layout/sidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
+import { Toaster } from "@/components/ui/toast"
 
 export default function Layout({ children }: LayoutProps<"/">) {
   return (
@@ -14,6 +15,7 @@ export default function Layout({ children }: LayoutProps<"/">) {
         </main>
         <Footer />
       </div>
+      <Toaster />
     </SidebarProvider>
   )
 }

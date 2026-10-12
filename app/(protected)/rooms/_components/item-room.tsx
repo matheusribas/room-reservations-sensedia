@@ -1,18 +1,23 @@
 import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardAction,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Room } from "@/lib/types"
+import { SquareArrowOutUpRightIcon } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
-type ItemRoomProps = Omit<Room, "id">
+type ItemRoomProps = Room
 
 export function ItemRoom(props: ItemRoomProps) {
-  const { name, capacity, resources } = props
+  const { id, name, capacity, resources } = props
+
   return (
     <Card className="relative mx-auto w-full pt-0">
       <div className="absolute inset-0 z-30 aspect-video bg-black/35" />
@@ -30,7 +35,7 @@ export function ItemRoom(props: ItemRoomProps) {
           </Badge>
         </CardAction>
         <CardTitle>{name}</CardTitle>
-        <CardDescription>
+        <CardDescription className="flex gap-1">
           {resources.length ? (
             resources.map((resource) => (
               <Badge key={resource.id} className="capitalize" variant="outline">
@@ -42,6 +47,16 @@ export function ItemRoom(props: ItemRoomProps) {
           )}
         </CardDescription>
       </CardHeader>
+      <CardFooter>
+        <Link
+          href={`/create-reservation?roomId=${id}`}
+          className={buttonVariants({
+            className: "w-full",
+          })}
+        >
+          Reservar sala <SquareArrowOutUpRightIcon />
+        </Link>
+      </CardFooter>
     </Card>
   )
 }
