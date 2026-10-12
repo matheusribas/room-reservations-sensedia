@@ -41,11 +41,13 @@ export async function PUT(
 
   const name = result.data?.name
   const capacity = result.data?.capacity
+  const maxDuration = result.data?.maxDuration
   const resourcesIds = result.data?.resourcesIds
   const newResources = result.data?.newResources
   const data = {
     ...(name !== undefined ? { name } : {}),
     ...(capacity !== undefined ? { capacity } : {}),
+    ...(maxDuration !== undefined ? { maxDuration } : {}),
     ...(resourcesIds !== undefined || newResources?.length
       ? {
           resources: {
