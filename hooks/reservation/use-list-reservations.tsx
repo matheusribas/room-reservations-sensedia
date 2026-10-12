@@ -1,5 +1,6 @@
 import { Reservation } from "@/lib/types"
 import { useQuery } from "@tanstack/react-query"
+import { throwIfNotOk } from "@/lib/api-error"
 
 interface UseReservationParams {
   date: string
@@ -15,7 +16,7 @@ export const useListReservations = ({ date }: UseReservationParams) => {
         signal,
       })
 
-      if (!response.ok) throw new Error("Falha ao buscar reservas.")
+      await throwIfNotOk(response, "Falha ao buscar reservas.")
 
       return (await response.json()) as Reservation[]
     },

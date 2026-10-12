@@ -10,7 +10,7 @@ export type Room = {
 export type User = {
   id: string
   name: string
-  role: string
+  role: "user" | "admin"
   createdAt: Date
 }
 

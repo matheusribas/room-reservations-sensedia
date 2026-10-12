@@ -30,7 +30,6 @@ function validateReservationWindow(
 export const createReservationSchema = z
   .object({
     roomId: z.string().trim().min(1, "Escolha uma sala."),
-    userId: z.string().trim().min(1, "Escolha um usuário."),
     startAt: reservationDateTimeSchema,
     endAt: reservationDateTimeSchema,
   })
@@ -67,7 +66,6 @@ export const reservationAvailabilityQuerySchema = z
 
 const reservationFormFieldsSchema = z.object({
   roomId: z.string().trim().min(1, "Escolha uma sala."),
-  userId: z.string().trim().min(1, "Escolha um usuário."),
   date: z.iso.date("Escolha uma data válida."),
   start: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Informe o início."),
   end: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Informe o fim."),
@@ -87,9 +85,8 @@ export const reservationFormSchema = reservationFormFieldsSchema
 
     validateReservationWindow(startAt, endAt, context, "start", "end")
   })
-  .transform(({ roomId, userId, date, start, end }) => ({
+  .transform(({ roomId, date, start, end }) => ({
     roomId,
-    userId,
     startAt: new Date(`${date}T${start}:00`).toISOString(),
     endAt: new Date(`${date}T${end}:00`).toISOString(),
   }))

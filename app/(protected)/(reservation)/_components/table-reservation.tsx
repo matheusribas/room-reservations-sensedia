@@ -23,24 +23,16 @@ export function TableReservations() {
   })
   const mutateDeleteReservation = useDeleteReservation()
 
-  const handleDeleteReservation = async (id: string) => {
-    try {
-      await mutateDeleteReservation.mutateAsync(id)
-
-      toast.add({
-        type: "success",
-        title: "Reserva excluída com sucesso!",
-      })
-    } catch (error) {
-      toast.add({
-        type: "error",
-        title: "Não foi possível excluir a reserva",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Por favor, tente novamente em instants",
-      })
-    }
+  const handleDeleteReservation = (id: string) => {
+    mutateDeleteReservation.mutateAsync(id).then(
+      () => {
+        toast.add({
+          type: "success",
+          title: "Reserva excluída com sucesso!",
+        })
+      },
+      () => undefined
+    )
   }
 
   const messageFeedback = isError

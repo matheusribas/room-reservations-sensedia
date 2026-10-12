@@ -22,6 +22,7 @@ export async function getCurrentUser() {
           id: true,
           name: true,
           role: true,
+          createdAt: true,
         },
       },
     },

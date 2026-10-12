@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge"
 const columnHelper = createColumnHelper<DataTableFeaturesType, Reservation>()
 
 interface ColumnsParams {
-  onDelete: (id: string) => Promise<void>
+  onDelete: (id: string) => void
 }
 export const columns = ({ onDelete }: ColumnsParams) =>
   columnHelper.columns([

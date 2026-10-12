@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
+import { throwIfNotOk } from "@/lib/api-error"
 
 export const useDeleteReservation = () => {
   return useMutation({
@@ -9,21 +10,7 @@ export const useDeleteReservation = () => {
         headers: { "Content-Type": "application/json" },
       })
 
-      if (!response.ok) {
-        const result: unknown = await response.json().catch(() => null)
-        let errorMessage = "Falha ao excluir reserva."
-
-        if (
-          typeof result === "object" &&
-          result !== null &&
-          "error" in result &&
-          typeof result.error === "string"
-        ) {
-          errorMessage = result.error
-        }
-
-        throw new Error(errorMessage)
-      }
+      await throwIfNotOk(response, "Falha ao excluir reserva.")
     },
     onSuccess(data, variables, onMutateResult, context) {
       context.client.invalidateQueries({

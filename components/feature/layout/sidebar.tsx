@@ -9,12 +9,14 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { CalendarDaysIcon, DoorClosedIcon, UsersRoundIcon } from "lucide-react"
+import { CalendarDaysIcon, DoorClosedIcon } from "lucide-react"
 import Link from "next/link"
 import { ImageLogo } from "@/components/shared/image-logo"
+import { useBoundStore } from "@/stores"
 
 export function Sidebar() {
   const { state } = useSidebar()
+  const userAuth = useBoundStore((state) => state.auth)
 
   return (
     <SidebarUI collapsible="icon">
@@ -32,15 +34,14 @@ export function Sidebar() {
             >
               <CalendarDaysIcon /> Minhas Reservas
             </SidebarMenuButton>
-            <SidebarMenuButton render={<Link href="/rooms" />} tooltip="Salas">
-              <DoorClosedIcon /> Salas
-            </SidebarMenuButton>
-            <SidebarMenuButton
-              render={<Link href="/users" />}
-              tooltip="Usuários"
-            >
-              <UsersRoundIcon /> Usuários
-            </SidebarMenuButton>
+            {userAuth?.role === "admin" && (
+              <SidebarMenuButton
+                render={<Link href="/rooms" />}
+                tooltip="Salas"
+              >
+                <DoorClosedIcon /> Salas
+              </SidebarMenuButton>
+            )}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

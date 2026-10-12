@@ -11,19 +11,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { toast } from "@/components/ui/toast"
+import { useLogout } from "@/hooks/auth/use-logout"
+import { useBoundStore } from "@/stores"
 import { LogOutIcon, UserIcon } from "lucide-react"
-import Link from "next/link"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useRouter } from "next/navigation"
 
 export function Header() {
-  // TODO: Fazer hook com os dados do usuário logado
-  const user = { name: "Matheus Felipe" }
-  const firstName = user.name.split(" ")[0]
+  const router = useRouter()
+  const userAuth = useBoundStore((state) => state.auth)
+  const logout = useBoundStore((state) => state.logout)
+  const mutateLogout = useLogout()
+
+  const firstName = userAuth ? userAuth.name.split(" ")[0] : "Sem usuário"
   const { setTheme } = useTheme()
 
   const handleThemeChange = (theme: "light" | "dark" | "system") => {
     setTheme(theme)
+  }
+  const handleLogout = () => {
+    mutateLogout.mutateAsync().then(
+      () => {
+        toast.add({
+          type: "success",
+          title: `Até mais ${userAuth?.name.split(" ")[0]}!`,
+        })
+        router.push("/login")
+        logout()
+      },
+      () => undefined
+    )
   }
 
   return (
@@ -39,13 +58,9 @@ export function Header() {
             </Button>
           }
         />
-        <DropdownMenuContent className="w-40" align="start">
+        <DropdownMenuContent className="w-50" align="start">
           <DropdownMenuGroup>
-            <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
-            <DropdownMenuItem>
-              <UserIcon />
-              Perfil
-            </DropdownMenuItem>
+            <DropdownMenuLabel>Preferências</DropdownMenuLabel>
             <DropdownMenuItem
               className="hidden transition-all dark:flex"
               onClick={() => handleThemeChange("light")}
@@ -62,10 +77,7 @@ export function Header() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            render={<Link href="/login" />}
-          >
+          <DropdownMenuItem variant="destructive" onClick={handleLogout}>
             <LogOutIcon />
             Sair
           </DropdownMenuItem>
