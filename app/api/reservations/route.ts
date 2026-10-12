@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { invalidRequest } from "@/lib/invalid-request"
 import { prisma } from "@/lib/prisma"
-import {
-  createReservationSchema,
-  reservationAvailabilityQuerySchema,
-} from "@/lib/schemas/reservations"
+import { createReservationSchema } from "@/lib/schemas/reservations"
+import z from "zod"
 
 class ReservationRequestError extends Error {
   constructor(
@@ -14,75 +12,46 @@ class ReservationRequestError extends Error {
     super(message)
   }
 }
-
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
-  const result = reservationAvailabilityQuerySchema.safeParse({
-    roomId: searchParams.get("roomId"),
-    startAt: searchParams.get("startAt"),
-    endAt: searchParams.get("endAt"),
-  })
+  const searchParamsDate = searchParams.get("date")
 
-  if (!result.success) return invalidRequest(result.error)
+  let date: string | undefined
+  try {
+    if (searchParamsDate !== null) {
+      const result = z.iso.date("Date é invalido.").safeParse(searchParamsDate)
+      if (!result.success) return invalidRequest(result.error)
+      date = result.data
+    }
+    if (!date) {
+      return invalidRequest("Data é obrigatória.")
+    }
 
-  const { roomId, startAt, endAt } = result.data
-  const rangeStart = new Date(startAt)
-  const rangeEnd = new Date(endAt)
+    const startOfDay = new Date(`${date}T00:00:00`)
+    const startOfNextDay = new Date(startOfDay)
+    startOfNextDay.setDate(startOfNextDay.getDate() + 1)
 
-  const room = await prisma.room.findUnique({
-    where: { id: roomId },
-    select: { id: true },
-  })
-
-  if (!room) {
-    return NextResponse.json({ error: "Sala não encontrada." }, { status: 404 })
-  }
-
-  const reservations = await prisma.reservation.findMany({
-    where: {
-      roomId,
-      status: "ACTIVE",
-      startAt: { lt: rangeEnd },
-      endAt: { gt: rangeStart },
-    },
-    select: { startAt: true, endAt: true },
-    orderBy: { startAt: "asc" },
-  })
-
-  const availableIntervals: Array<{ startAt: string; endAt: string }> = []
-  const minuteInMilliseconds = 60_000
-  const minimumIntervalInMilliseconds = 15 * minuteInMilliseconds
-  let cursor = Math.max(rangeStart.getTime(), Date.now())
-  const rangeEndTime = rangeEnd.getTime()
-
-  function addAvailableInterval(startTime: number, endTime: number) {
-    const roundedStart =
-      Math.ceil(startTime / minuteInMilliseconds) * minuteInMilliseconds
-    const roundedEnd =
-      Math.floor(endTime / minuteInMilliseconds) * minuteInMilliseconds
-
-    if (roundedEnd - roundedStart < minimumIntervalInMilliseconds) return
-
-    availableIntervals.push({
-      startAt: new Date(roundedStart).toISOString(),
-      endAt: new Date(roundedEnd).toISOString(),
+    const reservations = await prisma.reservation.findMany({
+      where: {
+        startAt: { lt: startOfNextDay },
+        endAt: { gt: startOfDay },
+      },
+      include: {
+        room: {
+          include: { resources: true },
+        },
+      },
+      orderBy: { startAt: "asc" },
     })
-  }
 
-  for (const reservation of reservations) {
-    const reservationStart = Math.max(
-      reservation.startAt.getTime(),
-      rangeStart.getTime()
+    return NextResponse.json(reservations, { status: 200 })
+  } catch (error) {
+    console.error("Não foi possível buscar as reservas:", error)
+    return NextResponse.json(
+      { error: "Não foi possível buscar as reservas." },
+      { status: 500 }
     )
-    const reservationEnd = Math.min(reservation.endAt.getTime(), rangeEndTime)
-
-    addAvailableInterval(cursor, reservationStart)
-    cursor = Math.max(cursor, reservationEnd)
   }
-
-  addAvailableInterval(cursor, rangeEndTime)
-
-  return NextResponse.json(availableIntervals, { status: 200 })
 }
 
 export async function POST(request: NextRequest) {
@@ -123,7 +92,6 @@ export async function POST(request: NextRequest) {
         const overlappingReservation = await transaction.reservation.findFirst({
           where: {
             roomId,
-            status: "ACTIVE",
             startAt: { lt: endTime },
             endAt: { gt: startTime },
           },
