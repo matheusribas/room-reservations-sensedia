@@ -28,35 +28,53 @@ Aplicação web para consulta e reserva de salas de reunião, desenvolvida como 
 - Consulta os períodos livres da sala para a data escolhida e os exibe no formulário.
 - Cria reservas pela API com validação no servidor: início no futuro, duração entre 15 minutos e 4 horas e sem sobreposição com outra reserva ativa da mesma sala.
 - Usa React Hook Form e Zod para validar o formulário no cliente; o servidor valida novamente antes de persistir.
-- Mantém o período disponível para reservar uma sala na consulta por sala
+- Associa a reserva ao usuário obtido da sessão no servidor; o cliente não escolhe nem envia o usuário responsável.
+- Mantém a consulta de disponibilidade vinculada à sala e ao período selecionados.
 
-O usuário associado à reserva ainda é um identificador mockado no formulário. A autenticação e a identificação segura do usuário ainda não foram implementadas. A disponibilidade exibida é informativa; o `POST` revalida conflitos para cobrir reservas criadas após a consulta.
+O período disponível exibido é informativo; o `POST` revalida conflitos para cobrir reservas criadas após a consulta.
+
+### SALA-3: minhas reservas
+
+- Lista as reservas do usuário autenticado, incluindo sala e recursos, com filtro por data.
+- A API sempre obtém o usuário da sessão e limita a busca por `userId`; não aceita um usuário arbitrário enviado pelo cliente.
+- Permite cancelar reservas próprias. O servidor verifica a propriedade e impede cancelar uma reserva em andamento.
+
+### SALA-4: administração de salas
+
+- Restringe as páginas de listagem, criação e edição ao papel `admin` no servidor.
+- Protege operações de criação, edição e exclusão de salas e gerenciamento de recursos nas APIs, verificando sessão e papel.
+- Permite criar e editar nome, capacidade e recursos. Recursos novos podem ser criados durante o cadastro/edição e relacionados à sala; nomes existentes são reutilizados.
+- A API de exclusão de salas existe, mas a interface atual não apresenta uma ação para excluir uma sala.
+
+### Autenticação atual
+
+- O login de demonstração permite escolher um usuário cadastrado, cria uma sessão de 24 horas e grava o token em cookie `HttpOnly`; o banco armazena o hash do token.
+- O logout remove a sessão e o cookie. As APIs protegidas identificam o usuário no servidor e aplicam autorização por papel quando necessário.
+- Este fluxo não comprova a identidade da pessoa: não há senha, SSO ou outro fator de autenticação, e a lista de usuários usada na tela de login é pública. Portanto, a seleção do perfil `admin` é apenas para demonstração e não deve ser considerada autenticação segura para produção.
 
 ### Base de dados e APIs
 
-- Modelos Prisma para usuários, salas, recursos e reservas, com relacionamento muitos-para-muitos entre salas e recursos e relações de reserva com sala e usuário.
-- API de listagem e criação de salas, além de atualização e exclusão por identificador.
-- API de listagem e criação de recursos, além de exclusão por identificador.
-- API de consulta de disponibilidade e criação de reservas, além de listagem de usuários.
+- Modelos Prisma para usuários, sessões, salas, recursos e reservas, com relacionamento muitos-para-muitos entre salas e recursos e relações de reserva com sala e usuário.
+- API de listagem e criação de salas, além de atualização e exclusão por identificador; mutações exigem papel `admin`.
+- API de listagem e criação de recursos, além de exclusão por identificador; operações administrativas exigem papel `admin`.
+- API de consulta de disponibilidade, criação/listagem de reservas próprias e cancelamento de reserva própria.
+- API de login, logout e consulta da sessão atual. A listagem de usuários é usada pelo login de demonstração.
 - Validação de entradas com schemas Zod e respostas HTTP para dados inválidos ou registros inexistentes.
-
-Os endpoints de criação, edição e exclusão são uma base de backend; isso não significa que os fluxos de administração e as permissões exigidas pelo desafio estejam concluídos.
 
 ## Status do desafio
 
 | Requisito | Situação atual |
 | --- | --- |
 | SALA-1: listar salas e filtrar por capacidade/recurso com filtros na URL | Implementado |
-| SALA-2: criar reservas, validar sobreposição, passado e duração | Implementado; usuário ainda é mockado e não há autenticação |
-| SALA-3: listar e cancelar somente as próprias reservas | Pendente |
-| SALA-4: administração de salas protegida por papel/permissão no servidor | Parcial: há endpoints de sala, mas faltam autenticação, autorização e fluxo administrativo completo |
+| SALA-2: criar reservas, validar sobreposição, passado e duração | Implementado |
+| SALA-3: listar e cancelar somente as próprias reservas | Implementado no cliente e no servidor |
+| SALA-4: administração de salas protegida por papel/permissão no servidor | Implementado |
 | SALA-5: restringir reservas a dias úteis, entre 08h e 20h | Pendente |
 | SALA-6: duração máxima de reserva configurável por sala | Pendente |
-| Seed com cinco salas, dois usuários comuns e um administrador | Implementado |
-| Testes automatizados dos requisitos pedidos | Pendente |
-| CI e processo completo de branches, PRs e releases | Pendente |
-
-As páginas de login, gerenciamento de usuários e listagem de minhas reservas ainda são placeholders. A tela de login não implementa autenticação; por isso, o formulário de reserva usa atualmente um usuário mockado.
+| Seed com cinco salas, dois usuários comuns, um administrador e recursos | Implementado |
+| Autenticação simples (seleção de perfil para demonstração) | Implementado |
+| Testes automatizados dos requisitos pedidos | Pendente; não há script de testes no `package.json` |
+| CI e processo completo de branches, PRs e releases | Em andamento |
 
 ## Executar localmente
 
@@ -88,9 +106,6 @@ flowchart LR
 
 ## Próximos passos
 
-
-1. Implementar autenticação e obter o usuário da sessão no servidor, removendo o identificador mockado do formulário.
-2. Implementar listagem e cancelamento de reservas próprias (SALA-3).
-3. Completar a administração de salas com autenticação e autorização no servidor (SALA-4).
-4. Implementar SALA-5 e SALA-6, CI e o fluxo de releases solicitado.
-5. Criar testes automatizados para os requisitos do desafio.
+1. Implementar SALA-5: restringir reservas a dias úteis, entre 08h e 20h, também na validação do servidor.
+2. Implementar SALA-6: configurar e validar a duração máxima por sala.
+5. Criar testes automatizados e configurar CI para lint, typecheck e testes.
