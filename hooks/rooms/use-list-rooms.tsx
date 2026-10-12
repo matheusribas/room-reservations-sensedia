@@ -1,5 +1,6 @@
 import { Room } from "@/lib/types"
 import { useQuery } from "@tanstack/react-query"
+import { throwIfNotOk } from "@/lib/api-error"
 
 interface UseListRoomsParams {
   capacity: string
@@ -17,7 +18,7 @@ export const useListRooms = ({ capacity, resourceIds }: UseListRoomsParams) => {
       }
 
       const response = await fetch(`/api/rooms?${searchParams}`, { signal })
-      if (!response.ok) throw new Error("Falha ao buscar salas.")
+      await throwIfNotOk(response, "Falha ao buscar salas.")
 
       return (await response.json()) as Room[]
     },

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+import { throwIfNotOk } from "@/lib/api-error"
 
 export interface AvailableInterval {
   startAt: string
@@ -33,31 +34,30 @@ export const useReservationAvailability = ({
         startAt: startAt.toISOString(),
         endAt: endAt.toISOString(),
       })
-      const response = await fetch(`/api/reservations?${searchParams}`, {
-        signal,
-      })
+      const response = await fetch(
+        `/api/reservations/availability?${searchParams}`,
+        {
+          signal,
+        }
+      )
 
-      let result: AvailableInterval[] | { error?: string }
+      await throwIfNotOk(
+        response,
+        "Não foi possível consultar disponibilidade."
+      )
+
+      let result: unknown
       try {
-        result = (await response.json()) as
-          AvailableInterval[] | { error?: string }
+        result = await response.json()
       } catch {
         throw new Error("O servidor retornou uma resposta inválida.")
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          !Array.isArray(result)
-            ? (result.error ?? "Não foi possível consultar disponibilidade.")
-            : "Não foi possível consultar disponibilidade."
-        )
       }
 
       if (!Array.isArray(result)) {
         throw new Error("O servidor retornou uma disponibilidade inválida.")
       }
 
-      return result
+      return result as AvailableInterval[]
     },
   })
 }

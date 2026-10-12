@@ -1,15 +1,43 @@
+import {
+  getCurrentUser,
+  MESSAGE_UNAUTHENTICATED,
+  MESSAGE_UNAUTHORIZED,
+} from "@/lib/auth"
 import { invalidRequest } from "@/lib/invalid-request"
 import { prisma } from "@/lib/prisma"
 import { createResourcesSchema } from "@/lib/schemas/resources"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    return NextResponse.json(
+      { error: MESSAGE_UNAUTHENTICATED },
+      { status: 401 }
+    )
+  }
+  if (user.role !== "admin") {
+    return NextResponse.json({ error: MESSAGE_UNAUTHORIZED }, { status: 403 })
+  }
   const resources = await prisma.resource.findMany()
 
   return NextResponse.json(resources, { status: 200 })
 }
 
 export async function POST(request: NextRequest) {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    return NextResponse.json(
+      { error: MESSAGE_UNAUTHENTICATED },
+      { status: 401 }
+    )
+  }
+  if (user.role !== "admin") {
+    return NextResponse.json({ error: MESSAGE_UNAUTHORIZED }, { status: 403 })
+  }
+
   let body: unknown
   try {
     body = await request.json()

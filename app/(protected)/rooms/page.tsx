@@ -1,7 +1,15 @@
 import { Suspense } from "react"
+import { redirect } from "next/navigation"
+import { getCurrentUser } from "@/lib/auth"
 import { ListRooms } from "./_components/list-rooms"
 
-export default function RoomPage() {
+export default async function RoomPage() {
+  const user = await getCurrentUser()
+
+  if (user?.role !== "admin") {
+    redirect("/")
+  }
+
   return (
     <>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
