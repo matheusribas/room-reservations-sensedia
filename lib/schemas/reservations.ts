@@ -166,7 +166,8 @@ function validateReservationWindow(
   endAt: Date,
   context: z.RefinementCtx,
   startPath: string,
-  endPath: string
+  endPath: string,
+  maxDurationMinutes?: number
 ) {
   if (startAt.getTime() <= Date.now()) {
     context.addIssue({
@@ -177,11 +178,22 @@ function validateReservationWindow(
   }
 
   const duration = endAt.getTime() - startAt.getTime()
-  if (duration < 15 * 60_000 || duration > 4 * 60 * 60_000) {
+  if (duration < 15 * 60_000) {
     context.addIssue({
       code: "custom",
       path: [endPath],
-      message: "A duração deve ser entre 15 minutos à 4 horas.",
+      message: "A duração deve ser de pelo menos 15 minutos.",
+    })
+  }
+
+  if (
+    maxDurationMinutes !== undefined &&
+    duration > maxDurationMinutes * 60_000
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: [endPath],
+      message: `A duração máxima para esta sala é de ${maxDurationMinutes} minutos.`,
     })
   }
 }
@@ -239,10 +251,11 @@ const reservationFormFieldsSchema = z.object({
   date: z.iso.date("Escolha uma data válida."),
   start: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Informe o início."),
   end: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Informe o fim."),
+  maxDuration: z.number().int().min(15),
 })
 
 export const reservationFormSchema = reservationFormFieldsSchema
-  .superRefine(({ date, start, end }, context) => {
+  .superRefine(({ date, start, end, maxDuration }, context) => {
     validateFormBusinessHours(date, start, end, context)
 
     const startAt = reservationLocalDateTimeToDate(date, start)
@@ -255,7 +268,14 @@ export const reservationFormSchema = reservationFormFieldsSchema
       return
     }
 
-    validateReservationWindow(startAt, endAt, context, "start", "end")
+    validateReservationWindow(
+      startAt,
+      endAt,
+      context,
+      "start",
+      "end",
+      maxDuration
+    )
   })
   .transform(({ roomId, date, start, end }) => ({
     roomId,

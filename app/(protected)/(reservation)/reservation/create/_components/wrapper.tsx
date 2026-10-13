@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -99,10 +100,19 @@ export function Wrapper() {
       date: initialSchedule.date,
       start: initialSchedule.start,
       end: initialSchedule.end,
+      maxDuration: 240,
     },
   })
   const selectedRoomId = useWatch({ control: form.control, name: "roomId" })
   const selectedRoom = rooms?.find((room) => room.id === selectedRoomId)
+
+  useEffect(() => {
+    if (selectedRoom) {
+      form.setValue("maxDuration", selectedRoom.maxDuration, {
+        shouldValidate: true,
+      })
+    }
+  }, [form, selectedRoom])
 
   function handleSubmit(values: CreateReservationInput) {
     mutateCreateReservation.mutateAsync(values).then(

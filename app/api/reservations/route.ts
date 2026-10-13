@@ -102,11 +102,19 @@ export async function POST(request: NextRequest) {
       async (transaction) => {
         const room = await transaction.room.findUnique({
           where: { id: roomId },
-          select: { id: true },
+          select: { id: true, maxDuration: true },
         })
 
         if (!room) {
           throw new ReservationRequestError("Sala não encontrada.", 404)
+        }
+
+        const duration = endTime.getTime() - startTime.getTime()
+        if (duration > room.maxDuration * 60_000) {
+          throw new ReservationRequestError(
+            `A duração máxima para esta sala é de ${room.maxDuration} minutos.`,
+            400
+          )
         }
 
         const overlappingReservation = await transaction.reservation.findFirst({

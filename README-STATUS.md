@@ -27,11 +27,11 @@ Quando uma nova sala for concluída:
 | Card | Requisito | Status registrado |
 | --- | --- | --- |
 | SALA-1 | Listagem de salas, filtro por capacidade/recurso e filtros na URL | Implementado |
-| SALA-2 | Reservas, sem sobreposição ou passado, duração de 15 min a 4 h e validação no servidor | Implementado |
+| SALA-2 | Reservas, sem sobreposição ou passado, duração mínima de 15 min e validação no servidor | Implementado |
 | SALA-3 | Listar e cancelar apenas as próprias reservas | Implementado |
 | SALA-4 | Admin cadastra/edita salas; autorização no servidor | Implementado; exclusão tem endpoint, sem ação na interface |
 | SALA-5 | Reservas somente em dias úteis, entre 08h e 20h; hotfix com teste | Implementado e coberto por testes automatizados |
-| SALA-6 | Duração máxima de reserva própria de cada sala, substituindo o limite fixo de 4 h | Pendente |
+| SALA-6 | Duração máxima de reserva própria de cada sala, substituindo o limite fixo de 4 h | Implementado; configurado em minutos |
 
 ### Implementação existente registrada
 
@@ -40,9 +40,10 @@ Quando uma nova sala for concluída:
 - Prisma modela `User`, `Session`, `Room` e `Resource`, com relação muitos-para-muitos entre salas e recursos.
 - API de salas tem GET/POST e operações PUT/DELETE por id.
 - API de recursos tem GET/POST e DELETE por id.
+- A criação de reservas valida no servidor a duração configurada para a sala; os formulários administrativos permitem editar esse limite.
 - Schemas Zod validam entradas no cliente e no servidor.
 - Reservas são validadas para dias úteis e para a janela de 08h–20h em `America/Sao_Paulo`; calendário e disponibilidade respeitam a mesma regra.
-- SALA-3 filtra listagem/cancelamento pela sessão; SALA-4 aplica autorização por papel no servidor.
+- SALA-3 filtra listagem e cancelamento pela sessão; SALA-4 protege páginas e mutações administrativas por papel.
 - O login permite escolher um usuário para demonstração e cria uma sessão, mas não comprova a identidade.
 
 ### Pendências e ressalvas conhecidas
@@ -56,10 +57,10 @@ Quando uma nova sala for concluída:
 
 ## Critérios para marcar cards como concluídos
 
-- **SALA-2:** conferir persistência de reserva, seleção de sala/data/início/fim, validações no servidor e teste de sobreposição. Documentar também regra de passado e limites de duração.
+- **SALA-2:** conferir persistência de reserva, seleção de sala/data/início/fim, validações no servidor e teste de sobreposição. Documentar também regra de passado e limite configurável (SALA-6).
 - **SALA-3:** conferir listagem/cancelamento, identidade do usuário e autorização que impeça acessar ou cancelar reservas alheias; verificar teste exigido.
 - **SALA-4:** conferir cadastro/edição pela interface e bloqueio no servidor para usuários comuns, inclusive chamadas diretas à API.
 - **SALA-5:** regra implementada no formulário e no servidor, com testes em `tests/reservation-business-hours.test.ts`; manter a regra ao integrar SALA-6.
-- **SALA-6:** conferir configuração por sala, validação de duração máxima e integração sem remover a regra de SALA-5.
+- **SALA-6:** implementado em minutos, com default de 240 para salas existentes e validação no formulário e no servidor.
 
 Atualize esta nota junto do README quando o status mudar, para servir de referência na próxima sessão.

@@ -84,6 +84,7 @@ export function AvailabilityHour() {
   >()
   const selectedRoomId = useWatch({ control, name: "roomId" })
   const selectedDate = useWatch({ control, name: "date" })
+  const maxDuration = useWatch({ control, name: "maxDuration" })
 
   const { isLoading, isError, error, data } = useReservationAvailability({
     roomId: selectedRoomId,
@@ -101,8 +102,11 @@ export function AvailabilityHour() {
           availability={data}
         />
         <ItemDescription>
-          Reservas são permitidas de segunda a sexta, das 08h às 20h. A duração
-          deve ser de no mínimo 15 minutos e no máximo 4 horas.
+          Reservas são permitidas de segunda a sexta, das 08h às 20h. <br />
+          Uma reserva deve ter no mínimo 15 minutos e no máximo {
+            maxDuration
+          }{" "}
+          minutos para esta sala.
         </ItemDescription>
       </ItemContent>
     </Item>

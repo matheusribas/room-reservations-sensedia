@@ -24,7 +24,7 @@ type ItemRoomProps = Room
 const SLICE_INDEX = 3
 
 export function ItemRoom(props: ItemRoomProps) {
-  const { id, name, capacity, resources } = props
+  const { id, name, capacity, resources, maxDuration } = props
   const router = useRouter()
 
   const rest = resources.slice(SLICE_INDEX) || []
@@ -57,12 +57,13 @@ export function ItemRoom(props: ItemRoomProps) {
         className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale dark:brightness-40"
       />
       <CardHeader>
-        <CardAction>
+        <CardAction className="flex gap-1">
           <Badge>
             Capacidade de <span className="font-bold">{capacity}</span> pessoas
           </Badge>
+          <Badge variant="outline">Até {maxDuration}min</Badge>
         </CardAction>
-        <CardTitle>{name}</CardTitle>
+        <CardTitle className="truncate">{name}</CardTitle>
         <CardDescription className="col-span-2 flex w-full gap-1">
           {resources.length ? (
             <Tooltip disabled={!rest.length}>
