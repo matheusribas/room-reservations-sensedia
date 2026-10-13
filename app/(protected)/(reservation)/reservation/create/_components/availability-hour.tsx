@@ -101,8 +101,8 @@ export function AvailabilityHour() {
           availability={data}
         />
         <ItemDescription>
-          Selecione uma data para saber os períodos disponíveis. <br />
-          Uma reserva só pode ter no mínimo 15 minutos e máximo 4 horas.
+          Reservas são permitidas de segunda a sexta, das 08h às 20h. A duração
+          deve ser de no mínimo 15 minutos e no máximo 4 horas.
         </ItemDescription>
       </ItemContent>
     </Item>

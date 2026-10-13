@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { throwIfNotOk } from "@/lib/api-error"
+import { reservationLocalDateTimeToDate } from "@/lib/schemas/reservations"
 
 export interface AvailableInterval {
   startAt: string
@@ -19,8 +20,8 @@ export const useReservationAvailability = ({
     queryKey: ["reservation-availability", roomId, date],
     enabled: Boolean(roomId && date),
     queryFn: async ({ signal }) => {
-      const startAt = new Date(`${date}T00:00:00`)
-      const endAt = new Date(`${date}T23:59:59`)
+      const startAt = reservationLocalDateTimeToDate(date, "08:00")
+      const endAt = reservationLocalDateTimeToDate(date, "20:00")
 
       if (
         !Number.isFinite(startAt.getTime()) ||
