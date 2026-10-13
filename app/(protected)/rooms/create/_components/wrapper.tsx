@@ -31,6 +31,7 @@ export function Wrapper() {
       isCreating
       defaultValues={{
         capacity: 1,
+        maxDuration: 240,
         name: "",
         resourcesIds: [],
         newResources: [],

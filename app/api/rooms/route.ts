@@ -82,12 +82,14 @@ export async function POST(request: NextRequest) {
   const result = createRoomSchema.safeParse(body)
   if (!result.success) return invalidRequest(result.error)
 
-  const { name, capacity, resourcesIds, newResources } = result.data
+  const { name, capacity, maxDuration, resourcesIds, newResources } =
+    result.data
   try {
     const room = await prisma.room.create({
       data: {
         name,
         capacity,
+        maxDuration,
         ...(resourcesIds !== undefined || newResources?.length
           ? {
               resources: {
