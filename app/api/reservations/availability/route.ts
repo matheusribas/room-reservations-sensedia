@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { invalidRequest } from "@/lib/invalid-request"
 import { prisma } from "@/lib/prisma"
-import { reservationAvailabilityQuerySchema } from "@/lib/schemas/reservations"
+import {
+  getReservationBusinessDate,
+  isReservationBusinessDay,
+  reservationAvailabilityQuerySchema,
+  reservationLocalDateTimeToDate,
+} from "@/lib/schemas/reservations"
 import { getCurrentUser, MESSAGE_UNAUTHENTICATED } from "@/lib/auth"
 
 export async function GET(request: NextRequest) {
@@ -26,6 +31,30 @@ export async function GET(request: NextRequest) {
   const { roomId, startAt, endAt } = result.data
   const rangeStart = new Date(startAt)
   const rangeEnd = new Date(endAt)
+  const businessDate = getReservationBusinessDate(rangeStart)
+
+  if (!isReservationBusinessDay(businessDate)) {
+    return NextResponse.json([], { status: 200 })
+  }
+
+  const businessStart = reservationLocalDateTimeToDate(
+    businessDate,
+    "08:00"
+  ).getTime()
+  const businessEnd = reservationLocalDateTimeToDate(
+    businessDate,
+    "20:00"
+  ).getTime()
+  const rangeStartTime = Math.max(
+    rangeStart.getTime(),
+    businessStart,
+    Date.now()
+  )
+  const rangeEndTime = Math.min(rangeEnd.getTime(), businessEnd)
+
+  if (rangeEndTime <= rangeStartTime) {
+    return NextResponse.json([], { status: 200 })
+  }
 
   const room = await prisma.room.findUnique({
     where: { id: roomId },
@@ -39,8 +68,8 @@ export async function GET(request: NextRequest) {
   const reservations = await prisma.reservation.findMany({
     where: {
       roomId,
-      startAt: { lt: rangeEnd },
-      endAt: { gt: rangeStart },
+      startAt: { lt: new Date(rangeEndTime) },
+      endAt: { gt: new Date(rangeStartTime) },
     },
     select: { startAt: true, endAt: true },
     orderBy: { startAt: "asc" },
@@ -49,8 +78,7 @@ export async function GET(request: NextRequest) {
   const availableIntervals: Array<{ startAt: string; endAt: string }> = []
   const minuteInMilliseconds = 60_000
   const minimumIntervalInMilliseconds = 15 * minuteInMilliseconds
-  let cursor = Math.max(rangeStart.getTime(), Date.now())
-  const rangeEndTime = rangeEnd.getTime()
+  let cursor = rangeStartTime
 
   function addAvailableInterval(startTime: number, endTime: number) {
     const roundedStart =

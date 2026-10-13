@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { invalidRequest } from "@/lib/invalid-request"
 import { prisma } from "@/lib/prisma"
-import { createReservationSchema } from "@/lib/schemas/reservations"
+import {
+  createReservationSchema,
+  reservationBusinessHoursSchema,
+} from "@/lib/schemas/reservations"
 import z from "zod"
 import { getCurrentUser, MESSAGE_UNAUTHENTICATED } from "@/lib/auth"
 
@@ -80,6 +83,11 @@ export async function POST(request: NextRequest) {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: "Corpo JSON inválido." }, { status: 400 })
+  }
+
+  const businessHoursResult = reservationBusinessHoursSchema.safeParse(body)
+  if (!businessHoursResult.success) {
+    return invalidRequest(businessHoursResult.error)
   }
 
   const result = createReservationSchema.safeParse(body)
