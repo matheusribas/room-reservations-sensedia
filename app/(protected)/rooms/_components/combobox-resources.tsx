@@ -37,7 +37,7 @@ export function ComboboxResources({
       value={selectedResourceIds}
       onValueChange={onValueChange}
     >
-      <ComboboxChips ref={anchor} className="w-full max-w-50">
+      <ComboboxChips ref={anchor} className="w-full sm:max-w-50">
         <ComboboxValue>
           {(values) => (
             <>

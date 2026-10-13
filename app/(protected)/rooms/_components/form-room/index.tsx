@@ -59,7 +59,7 @@ export function FormRoom({
           <p className="text-muted-foreground">{labels[type].description}</p>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-col sm:flex-row">
           <Button
             variant="outline"
             size="lg"

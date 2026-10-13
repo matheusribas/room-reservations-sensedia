@@ -51,7 +51,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex h-dvh w-full flex-col items-center justify-center gap-6">
+    <main className="flex h-dvh w-full flex-col items-center justify-center gap-6 p-4">
       <div className="flex flex-col justify-end gap-4">
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl">Acessar com usuário</h2>

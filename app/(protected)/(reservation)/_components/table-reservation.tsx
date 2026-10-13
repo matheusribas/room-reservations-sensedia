@@ -42,7 +42,7 @@ export function TableReservations() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-end gap-2">
-        <p className="text-muted-foreground">Filtre por data:</p>
+        <p>Filtrando a data:</p>
         <Popover>
           <PopoverTrigger
             render={
@@ -51,6 +51,7 @@ export function TableReservations() {
                 variant="outline"
                 id="date-picker-date"
                 className="flex min-w-25 justify-center"
+                size='lg'
               >
                 {formatedDate ? (
                   format(formatedDate, "dd/MM/yyyy")
@@ -66,6 +67,7 @@ export function TableReservations() {
               selected={formatedDate}
               onSelect={setDate}
               defaultMonth={formatedDate}
+              disabled={[{ dayOfWeek: [0, 6] }]}
             />
           </PopoverContent>
         </Popover>

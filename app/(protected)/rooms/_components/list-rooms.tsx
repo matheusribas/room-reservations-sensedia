@@ -58,7 +58,7 @@ export function ListRooms() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-end gap-4">
+      <div className="flex flex-col sm:flex-row justify-end gap-4">
         <InputDebounce
           value={capacity}
           onValueChange={(newValue) => {
@@ -66,7 +66,7 @@ export function ListRooms() {
             setCapacity(value)
           }}
           placeholder="Buscar por capacidade"
-          className="w-full max-w-50"
+          className="w-full sm:max-w-50 placeholder:text-sm"
           type="number"
           inputMode="numeric"
           min={1}
