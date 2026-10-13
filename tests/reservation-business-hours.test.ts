@@ -111,6 +111,7 @@ test("validates business days and hours in the reservation form", () => {
       date: weekday,
       start: "08:00",
       end: "09:00",
+      maxDuration: 240,
     }).success,
     true
   )
@@ -120,6 +121,7 @@ test("validates business days and hours in the reservation form", () => {
       date: saturday,
       start: "08:00",
       end: "09:00",
+      maxDuration: 240,
     }).success,
     false
   )
@@ -129,6 +131,7 @@ test("validates business days and hours in the reservation form", () => {
       date: weekday,
       start: "07:00",
       end: "08:00",
+      maxDuration: 240,
     }).success,
     false
   )
