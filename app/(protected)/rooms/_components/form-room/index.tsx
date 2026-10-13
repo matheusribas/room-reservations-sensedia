@@ -114,28 +114,57 @@ export function FormRoom({
                     )}
                   </Field>
 
-                  <Field data-invalid={form.formState.errors.capacity}>
-                    <FieldLabel htmlFor="capacity">Capacidade</FieldLabel>
-                    <Input
-                      type="number"
-                      id="capacity"
-                      inputMode="numeric"
-                      min={1}
-                      step={1}
-                      aria-invalid={Boolean(form.formState.errors.capacity)}
-                      {...form.register("capacity", { valueAsNumber: true })}
-                    />
-                    {form.formState.errors.capacity ? (
-                      <FieldError>
-                        {form.formState.errors.capacity.message}
-                      </FieldError>
-                    ) : (
-                      <FieldDescription>
-                        Preencha a capacidade de pessoas que essa sala comporta
-                      </FieldDescription>
-                    )}
-                  </Field>
-
+                  <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <Field data-invalid={form.formState.errors.capacity}>
+                      <FieldLabel htmlFor="capacity">Capacidade</FieldLabel>
+                      <Input
+                        type="number"
+                        id="capacity"
+                        inputMode="numeric"
+                        min={1}
+                        step={1}
+                        aria-invalid={Boolean(form.formState.errors.capacity)}
+                        {...form.register("capacity", { valueAsNumber: true })}
+                      />
+                      {form.formState.errors.capacity ? (
+                        <FieldError>
+                          {form.formState.errors.capacity.message}
+                        </FieldError>
+                      ) : (
+                        <FieldDescription>
+                          Preencha a capacidade de pessoas que essa sala
+                          comporta
+                        </FieldDescription>
+                      )}
+                    </Field>
+                    <Field data-invalid={form.formState.errors.maxDuration}>
+                      <FieldLabel htmlFor="maxDuration">
+                        Duração máxima (minutos)
+                      </FieldLabel>
+                      <Input
+                        type="number"
+                        id="maxDuration"
+                        inputMode="numeric"
+                        min={15}
+                        step={1}
+                        aria-invalid={Boolean(
+                          form.formState.errors.maxDuration
+                        )}
+                        {...form.register("maxDuration", {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      {form.formState.errors.maxDuration ? (
+                        <FieldError>
+                          {form.formState.errors.maxDuration.message}
+                        </FieldError>
+                      ) : (
+                        <FieldDescription>
+                          Define o tempo máximo de cada reserva nesta sala.
+                        </FieldDescription>
+                      )}
+                    </Field>
+                  </FieldGroup>
                   <UpsetResources />
                 </FieldGroup>
               </FieldSet>

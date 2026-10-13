@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { invalidRequest } from "@/lib/invalid-request"
 import { prisma } from "@/lib/prisma"
-import { createReservationSchema } from "@/lib/schemas/reservations"
+import {
+  createReservationSchema,
+  reservationBusinessHoursSchema,
+} from "@/lib/schemas/reservations"
 import z from "zod"
 import { getCurrentUser, MESSAGE_UNAUTHENTICATED } from "@/lib/auth"
 
@@ -82,6 +85,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Corpo JSON inválido." }, { status: 400 })
   }
 
+  const businessHoursResult = reservationBusinessHoursSchema.safeParse(body)
+  if (!businessHoursResult.success) {
+    return invalidRequest(businessHoursResult.error)
+  }
+
   const result = createReservationSchema.safeParse(body)
   if (!result.success) return invalidRequest(result.error)
 
@@ -94,11 +102,19 @@ export async function POST(request: NextRequest) {
       async (transaction) => {
         const room = await transaction.room.findUnique({
           where: { id: roomId },
-          select: { id: true },
+          select: { id: true, maxDuration: true },
         })
 
         if (!room) {
           throw new ReservationRequestError("Sala não encontrada.", 404)
+        }
+
+        const duration = endTime.getTime() - startTime.getTime()
+        if (duration > room.maxDuration * 60_000) {
+          throw new ReservationRequestError(
+            `A duração máxima para esta sala é de ${room.maxDuration} minutos.`,
+            400
+          )
         }
 
         const overlappingReservation = await transaction.reservation.findFirst({

@@ -5,6 +5,7 @@ export type Room = {
   id: string
   name: string
   capacity: number
+  maxDuration: number
   resources: Resource[]
 }
 export type User = {

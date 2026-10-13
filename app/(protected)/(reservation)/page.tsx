@@ -2,6 +2,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { TableReservations } from "./_components/table-reservation"
 import Link from "next/link"
 import { CalendarDaysIcon } from "lucide-react"
+import { Suspense } from "react"
 
 export default function ReservationPage() {
   return (
@@ -21,7 +22,15 @@ export default function ReservationPage() {
         </Link>
       </div>
 
-      <TableReservations />
+      <Suspense
+        fallback={
+          <div className="flex min-h-64 items-center justify-center text-sm text-muted-foreground">
+            Carregando tabela...
+          </div>
+        }
+      >
+        <TableReservations />
+      </Suspense>
     </>
   )
 }

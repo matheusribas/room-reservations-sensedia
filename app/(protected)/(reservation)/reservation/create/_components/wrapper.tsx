@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -9,6 +10,8 @@ import { SaveIcon, DoorClosedIcon } from "lucide-react"
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
+  getReservationBusinessTime,
+  isReservationBusinessDay,
   reservationFormSchema,
   type CreateReservationInput,
   type ReservationFormValues,
@@ -40,7 +43,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
-import { format, getHours } from "date-fns"
+import { format } from "date-fns"
 import { useCreateReservation } from "@/hooks/reservation/use-create-reservation"
 import { toast } from "@/components/ui/toast"
 import { AvailabilityHour } from "./availability-hour"
@@ -49,24 +52,67 @@ function localDateString(date: Date) {
   return format(date, "yyyy-MM-dd")
 }
 
+function nextBusinessDate(date: string) {
+  const nextDate = new Date(`${date}T12:00:00.000Z`)
+
+  do {
+    nextDate.setUTCDate(nextDate.getUTCDate() + 1)
+  } while (!isReservationBusinessDay(localDateString(nextDate)))
+
+  return localDateString(nextDate)
+}
+
+function getInitialSchedule() {
+  const current = getReservationBusinessTime(new Date())
+  let date = current.date
+  let startMinutes = Math.max(
+    8 * 60,
+    (Math.floor(current.minutes / 60) + 1) * 60
+  )
+
+  if (!isReservationBusinessDay(date) || startMinutes >= 20 * 60) {
+    date = nextBusinessDate(date)
+    startMinutes = 8 * 60
+  }
+
+  const formatTime = (minutes: number) =>
+    `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`
+
+  return {
+    date,
+    start: formatTime(startMinutes),
+    end: formatTime(startMinutes + 60),
+  }
+}
+
 export function Wrapper() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const roomId = searchParams.get("roomId") || ""
   const { data: rooms } = useListRooms({ capacity: "", resourceIds: [] })
   const mutateCreateReservation = useCreateReservation()
+  const initialSchedule = getInitialSchedule()
 
   const form = useForm<ReservationFormValues, unknown, CreateReservationInput>({
     resolver: zodResolver(reservationFormSchema),
     defaultValues: {
       roomId,
-      date: localDateString(new Date()),
-      start: `${getHours(new Date()) + 1}:00`,
-      end: `${getHours(new Date()) + 2}:00`,
+      date: initialSchedule.date,
+      start: initialSchedule.start,
+      end: initialSchedule.end,
+      maxDuration: 240,
     },
   })
   const selectedRoomId = useWatch({ control: form.control, name: "roomId" })
   const selectedRoom = rooms?.find((room) => room.id === selectedRoomId)
+
+  useEffect(() => {
+    if (selectedRoom) {
+      form.setValue("maxDuration", selectedRoom.maxDuration, {
+        shouldValidate: true,
+      })
+    }
+  }, [form, selectedRoom])
 
   function handleSubmit(values: CreateReservationInput) {
     mutateCreateReservation.mutateAsync(values).then(
@@ -241,11 +287,14 @@ export function Wrapper() {
                                       value ? localDateString(value) : ""
                                     )
                                   }
-                                  disabled={{
-                                    before: new Date(
-                                      `${localDateString(new Date())}T00:00:00`
-                                    ),
-                                  }}
+                                  disabled={[
+                                    {
+                                      before: new Date(
+                                        `${getReservationBusinessTime(new Date()).date}T00:00:00`
+                                      ),
+                                    },
+                                    { dayOfWeek: [0, 6] },
+                                  ]}
                                   defaultMonth={selectedDate}
                                 />
                               </PopoverContent>
@@ -267,6 +316,8 @@ export function Wrapper() {
                       <Input
                         type="time"
                         id="time-picker-start"
+                        min="08:00"
+                        max="19:45"
                         step="60"
                         aria-invalid={Boolean(form.formState.errors.start)}
                         {...form.register("start")}
@@ -283,6 +334,8 @@ export function Wrapper() {
                       <Input
                         type="time"
                         id="time-picker-end"
+                        min="08:15"
+                        max="20:00"
                         step="60"
                         aria-invalid={Boolean(form.formState.errors.end)}
                         {...form.register("end")}

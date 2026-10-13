@@ -26,7 +26,7 @@ Aplicação web para consulta e reserva de salas de reunião, desenvolvida como 
 
 - Permite escolher sala, data, início e fim pelo formulário de criação de reserva.
 - Consulta os períodos livres da sala para a data escolhida e os exibe no formulário.
-- Cria reservas pela API com validação no servidor: início no futuro, duração entre 15 minutos e 4 horas e sem sobreposição com outra reserva ativa da mesma sala.
+- Cria reservas pela API com validação no servidor: início no futuro, em dia útil, entre 08h e 20h, duração mínima de 15 minutos, limite máximo definido por sala e sem sobreposição com outra reserva ativa.
 - Usa React Hook Form e Zod para validar o formulário no cliente; o servidor valida novamente antes de persistir.
 - Associa a reserva ao usuário obtido da sessão no servidor; o cliente não escolhe nem envia o usuário responsável.
 - Mantém a consulta de disponibilidade vinculada à sala e ao período selecionados.
@@ -45,6 +45,18 @@ O período disponível exibido é informativo; o `POST` revalida conflitos para 
 - Protege operações de criação, edição e exclusão de salas e gerenciamento de recursos nas APIs, verificando sessão e papel.
 - Permite criar e editar nome, capacidade e recursos. Recursos novos podem ser criados durante o cadastro/edição e relacionados à sala; nomes existentes são reutilizados.
 - A API de exclusão de salas existe, mas a interface atual não apresenta uma ação para excluir uma sala.
+
+### SALA-5: horário permitido para reservas
+
+- Reservas só podem começar e terminar de segunda a sexta-feira, dentro da janela das 08h às 20h, no fuso `America/Sao_Paulo`.
+- O calendário desabilita fins de semana e os campos de horário indicam os limites permitidos.
+- A disponibilidade é consultada somente dentro da janela comercial; a API de criação valida a regra novamente no servidor.
+
+### SALA-6: duração máxima por sala
+
+- Cada sala tem uma duração máxima de reserva configurável em minutos. Salas existentes recebem 240 minutos por padrão para preservar o limite anterior.
+- O formulário administrativo permite definir esse valor ao criar ou editar a sala.
+- O formulário de reserva valida a duração conforme a sala selecionada, e a API repete a validação no servidor usando o valor persistido.
 
 ### Autenticação atual
 
@@ -66,14 +78,14 @@ O período disponível exibido é informativo; o `POST` revalida conflitos para 
 | Requisito | Situação atual |
 | --- | --- |
 | SALA-1: listar salas e filtrar por capacidade/recurso com filtros na URL | Implementado |
-| SALA-2: criar reservas, validar sobreposição, passado e duração | Implementado |
+| SALA-2: criar reservas, validar sobreposição, passado e duração mínima | Implementado |
 | SALA-3: listar e cancelar somente as próprias reservas | Implementado no cliente e no servidor |
 | SALA-4: administração de salas protegida por papel/permissão no servidor | Implementado |
-| SALA-5: restringir reservas a dias úteis, entre 08h e 20h | Pendente |
-| SALA-6: duração máxima de reserva configurável por sala | Pendente |
+| SALA-5: restringir reservas a dias úteis, entre 08h e 20h | Implementado e testado |
+| SALA-6: duração máxima de reserva configurável por sala | Implementado; valor em minutos e validação no servidor |
 | Seed com cinco salas, dois usuários comuns, um administrador e recursos | Implementado |
 | Autenticação simples (seleção de perfil para demonstração) | Implementado |
-| Testes automatizados dos requisitos pedidos | Pendente; não há script de testes no `package.json` |
+| Testes automatizados dos requisitos pedidos | Parcial; `pnpm test` cobre a regra de horário da SALA-5 |
 | CI e processo completo de branches, PRs e releases | Em andamento |
 
 ## Executar localmente
@@ -85,7 +97,7 @@ Requisitos: Node.js compatível com o projeto e pnpm.
 3. Aplique as migrations, gere o Prisma Client e popule o banco com `pnpm run db:setup`.
 4. Inicie a aplicação com `pnpm run dev`.
 
-Também estão configurados `pnpm run lint` e `pnpm run typecheck`. Ainda não há script de testes no `package.json`.
+Também estão configurados `pnpm run lint` e `pnpm test`. Os testes atuais cobrem a regra de horário da SALA-5; os demais requisitos ainda precisam de cobertura automatizada.
 
 ## Arquitetura AWS proposta
 
@@ -106,6 +118,4 @@ flowchart LR
 
 ## Próximos passos
 
-1. Implementar SALA-5: restringir reservas a dias úteis, entre 08h e 20h, também na validação do servidor.
-2. Implementar SALA-6: configurar e validar a duração máxima por sala.
-5. Criar testes automatizados e configurar CI para lint, typecheck e testes.
+1. Criar testes automatizados e configurar CI para lint, typecheck e testes.
