@@ -23,6 +23,7 @@ interface AvailabilityResultsProps {
   isError: boolean
   errorMessage?: string
   availability?: AvailableInterval[]
+  hasRoom: boolean
 }
 
 function AvailabilityResults({
@@ -30,8 +31,13 @@ function AvailabilityResults({
   isError,
   errorMessage,
   availability,
+  hasRoom,
 }: AvailabilityResultsProps) {
-  if (isLoading || availability === undefined) {
+  if (!hasRoom) {
+    return (
+      <p className="text-sm text-muted-foreground">Selecione uma sala para consultar os horários.</p>
+    )
+  } else if (isLoading) {
     return (
       <p className="text-sm text-muted-foreground">Consultando horários...</p>
     )
@@ -91,6 +97,7 @@ export function AvailabilityHour() {
     date: selectedDate,
   })
 
+  console.log({ selectedDate})
   return (
     <Item variant="outline">
       <ItemContent className="gap-3">
@@ -100,6 +107,7 @@ export function AvailabilityHour() {
           isError={isError}
           errorMessage={error?.message}
           availability={data}
+          hasRoom={!!selectedRoomId}
         />
         <ItemDescription>
           Reservas são permitidas de segunda a sexta, das 08h às 20h. <br />

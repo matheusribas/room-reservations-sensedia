@@ -32,9 +32,9 @@ export const columns = ({ onDelete }: ColumnsParams) =>
       cell({ row }) {
         const { room } = row.original
         return (
-          <p className="max-w-2xs truncate">
+          <Badge>
             {room.capacity} {room.capacity === 1 ? "pessoa" : "pessoas"}
-          </p>
+          </Badge>
         )
       },
     }),
@@ -57,7 +57,7 @@ export const columns = ({ onDelete }: ColumnsParams) =>
               render={
                 <div className="space-x-2">
                   {resources.slice(0, SLICE_INDEX).map((resource) => (
-                    <Badge key={resource.id} className="capitalize">
+                    <Badge key={resource.id} className="capitalize" variant='outline'>
                       {resource.name}
                     </Badge>
                   ))}

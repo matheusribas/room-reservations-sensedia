@@ -13,6 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Room } from "@/lib/types"
 import { Edit2Icon, CalendarDaysIcon } from "lucide-react"
 import Image from "next/image"
@@ -21,11 +22,13 @@ import { useRouter } from "next/navigation"
 
 type ItemRoomProps = Room
 
-const SLICE_INDEX = 3
 
 export function ItemRoom(props: ItemRoomProps) {
   const { id, name, capacity, resources, maxDuration } = props
   const router = useRouter()
+  const isMobile = useIsMobile()
+
+  const SLICE_INDEX = !isMobile ? 3 : undefined
 
   const rest = resources.slice(SLICE_INDEX) || []
 
@@ -56,20 +59,21 @@ export function ItemRoom(props: ItemRoomProps) {
         src="https://avatar.vercel.sh/shadcn1"
         className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale dark:brightness-40"
       />
-      <CardHeader>
+      <CardHeader className="flex flex-col gap-4 sm:grid sm:gap-1">
+        <CardTitle className="truncate">{name}</CardTitle>
         <CardAction className="flex gap-1">
           <Badge>
             Capacidade de <span className="font-bold">{capacity}</span> pessoas
           </Badge>
           <Badge variant="outline">Até {maxDuration}min</Badge>
         </CardAction>
-        <CardTitle className="truncate">{name}</CardTitle>
         <CardDescription className="col-span-2 flex w-full gap-1">
           {resources.length ? (
             <Tooltip disabled={!rest.length}>
               <TooltipTrigger
                 render={
-                  <div className="space-x-2">
+                  <div className="space-x-1 space-y-1">
+                    <span className="text-muted-foreground text-xs">Recursos:</span>
                     {resources.slice(0, SLICE_INDEX).map((resource) => (
                       <Badge
                         key={resource.id}
@@ -79,12 +83,12 @@ export function ItemRoom(props: ItemRoomProps) {
                         {resource.name}
                       </Badge>
                     ))}
-                    {rest.length ? <span>+{rest.length}</span> : null}
+                    {rest.length && !isMobile ? <span>+{rest.length}</span> : null}
                   </div>
                 }
               />
               <TooltipContent>
-                {resources.map((r) => r.name).join(", ")}
+                Recursos: {resources.map((r) => r.name).join(", ")}
               </TooltipContent>
             </Tooltip>
           ) : (
