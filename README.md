@@ -51,7 +51,6 @@ O período disponível exibido é informativo; o `POST` revalida conflitos para 
 - Reservas só podem começar e terminar de segunda a sexta-feira, dentro da janela das 08h às 20h, no fuso `America/Sao_Paulo`.
 - O calendário desabilita fins de semana e os campos de horário indicam os limites permitidos.
 - A disponibilidade é consultada somente dentro da janela comercial; a API de criação valida a regra novamente no servidor.
-- Não há teste automatizado configurado no projeto; as regras foram verificadas manualmente nesta alteração.
 
 ### SALA-6: duração máxima por sala
 
