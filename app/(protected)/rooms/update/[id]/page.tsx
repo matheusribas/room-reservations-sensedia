@@ -48,6 +48,7 @@ export default async function UpdateRoomPage({
         defaultValues={{
           name: room.name,
           capacity: room.capacity,
+          maxDuration: room.maxDuration,
           resourcesIds: room.resources.map(({ id }) => id),
           newResources: [],
         }}
